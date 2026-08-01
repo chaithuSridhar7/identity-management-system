@@ -1,7 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"net/http"
 
-func main(){
-	fmt.Println("Auth service starting...")
+	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/handlers"
+)
+
+func main() {
+
+	http.HandleFunc("/", handlers.HomeHandler)
+
+	http.ListenAndServe(":8080", nil)
 }
