@@ -6,6 +6,9 @@ import (
 	"net/http"
 
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/database"
+	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/handlers"
+	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/repository"
+	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/services"
 )
 
 func main() {
@@ -19,9 +22,15 @@ func main() {
 
 	fmt.Println("Database connected successfully")
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Auth service running")
-	})
+	userRepository := repository.NewUserRepository(db)
+
+	userService := services.NewUserService(userRepository)
+
+	authHandler := handlers.NewAuthHandler(userService)
+
+	http.HandleFunc("/", handlers.HomeHandler)
+	http.HandleFunc("/register", authHandler.Register)	
+	http.HandleFunc("/login", authHandler.Login)
 
 	fmt.Println("Server running on port 8080")
 

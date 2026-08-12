@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/models"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/repository"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/security"
@@ -38,6 +39,24 @@ func (s *UserService) RegisterUser(
 
 	if err != nil {
 		return nil, err
+	}
+
+	return user, nil
+}
+
+func (s *UserService) LoginUser(
+	email string,
+	password string,
+) (*models.User, error) {
+
+	user, err := s.UserRepository.FindUserByEmail(email)
+
+	if err != nil {
+		return nil, errors.New("invalid email or password")
+	}
+
+	if !security.VerifyPassword(password, user.PasswordHash) {
+		return nil, errors.New("invalid email or password")
 	}
 
 	return user, nil

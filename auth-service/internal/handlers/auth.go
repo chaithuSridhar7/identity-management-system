@@ -1,17 +1,26 @@
 package handlers
 
 import (
-	"encoding/json"
-	"net/http"
+	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/services"
 )
 
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
+type AuthHandler struct {
+	UserService *services.UserService
+}
 
-	response := map[string]string{
-		"message": "Auth service running",
+func NewAuthHandler(userService *services.UserService) *AuthHandler {
+	return &AuthHandler{
+		UserService: userService,
 	}
+}
 
-	w.Header().Set("Content-Type", "application/json")
+type RegisterRequest struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
 
-	json.NewEncoder(w).Encode(response)
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
