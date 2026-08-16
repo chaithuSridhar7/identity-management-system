@@ -1,14 +1,19 @@
 package handlers
 
 import (
-	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/services"
+	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/models"
 )
 
-type AuthHandler struct {
-	UserService *services.UserService
+type UserService interface {
+	RegisterUser(username string, email string, password string) (*models.User, error)
+	LoginUser(email string, password string) (*models.User, error)
 }
 
-func NewAuthHandler(userService *services.UserService) *AuthHandler {
+type AuthHandler struct {
+	UserService UserService
+}
+
+func NewAuthHandler(userService UserService) *AuthHandler {
 	return &AuthHandler{
 		UserService: userService,
 	}
