@@ -3,15 +3,19 @@ package services
 import (
 	"errors"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/models"
-	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/repository"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/security"
 )
 
-type UserService struct {
-	UserRepository *repository.UserRepository
+type UserRepository interface {
+	CreateUser(user *models.User) error
+	FindUserByEmail(email string) (*models.User, error)
 }
 
-func NewUserService(repo *repository.UserRepository) *UserService {
+type UserService struct {
+	UserRepository UserRepository
+}
+
+func NewUserService(repo UserRepository) *UserService {
 	return &UserService{
 		UserRepository: repo,
 	}
