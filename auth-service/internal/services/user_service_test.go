@@ -9,10 +9,10 @@ import (
 )
 
 type fakeUserRepository struct {
-	createdUser       *models.User
-	userToReturn      *models.User
-	findUserError     error
-	createUserError   error
+	createdUser     *models.User
+	userToReturn    *models.User
+	findUserError   error
+	createUserError error
 }
 
 func (f *fakeUserRepository) CreateUser(user *models.User) error {
@@ -35,7 +35,7 @@ func (f *fakeUserRepository) FindUserByEmail(email string) (*models.User, error)
 func TestRegisterUser(t *testing.T) {
 	repo := &fakeUserRepository{}
 
-	service := NewUserService(repo)
+	service := NewUserService(repo, "test-secret")
 
 	user, err := service.RegisterUser(
 		"testuser",
@@ -77,7 +77,7 @@ func TestRegisterUserRepositoryError(t *testing.T) {
 		createUserError: errors.New("database error"),
 	}
 
-	service := NewUserService(repo)
+	service := NewUserService(repo, "test-secret")
 
 	user, err := service.RegisterUser(
 		"testuser",
@@ -110,7 +110,7 @@ func TestLoginUser(t *testing.T) {
 		},
 	}
 
-	service := NewUserService(repo)
+	service := NewUserService(repo, "test-secret")
 
 	user, err := service.LoginUser(
 		"test@example.com",
@@ -125,8 +125,12 @@ func TestLoginUser(t *testing.T) {
 		t.Fatal("expected user, got nil")
 	}
 
-	if user.Email != "test@example.com" {
-		t.Errorf("expected email test@example.com, got %s", user.Email)
+	if user.User.Email != "test@example.com" {
+		t.Errorf("expected email test@example.com, got %s", user.User.Email)
+	}
+
+	if user.Token == "" {
+		t.Error("expected access token, got empty token")
 	}
 }
 
@@ -146,7 +150,7 @@ func TestLoginUserWrongPassword(t *testing.T) {
 		},
 	}
 
-	service := NewUserService(repo)
+	service := NewUserService(repo, "test-secret")
 
 	user, err := service.LoginUser(
 		"test@example.com",
@@ -171,7 +175,7 @@ func TestLoginUserRepositoryError(t *testing.T) {
 		findUserError: errors.New("database error"),
 	}
 
-	service := NewUserService(repo)
+	service := NewUserService(repo, "test-secret")
 
 	user, err := service.LoginUser(
 		"test@example.com",

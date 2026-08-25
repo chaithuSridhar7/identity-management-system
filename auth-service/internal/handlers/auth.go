@@ -6,7 +6,7 @@ import (
 
 type UserService interface {
 	RegisterUser(username string, email string, password string) (*models.User, error)
-	LoginUser(email string, password string) (*models.User, error)
+	LoginUser(email string, password string) (*models.LoginResponse, error)
 }
 
 type AuthHandler struct {

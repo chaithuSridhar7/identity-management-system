@@ -4,14 +4,27 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/database"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/handlers"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/repository"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/services"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file:", err)
+	}
+
+	jwtSecret := os.Getenv("JWT_SECRET")
+
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET is not set")
+	}
 
 	db, err := database.Connect()
 	if err != nil {
@@ -24,12 +37,12 @@ func main() {
 
 	userRepository := repository.NewUserRepository(db)
 
-	userService := services.NewUserService(userRepository)
+	userService := services.NewUserService(userRepository, jwtSecret)
 
 	authHandler := handlers.NewAuthHandler(userService)
 
 	http.HandleFunc("/", handlers.HomeHandler)
-	http.HandleFunc("/register", authHandler.Register)	
+	http.HandleFunc("/register", authHandler.Register)
 	http.HandleFunc("/login", authHandler.Login)
 
 	fmt.Println("Server running on port 8080")

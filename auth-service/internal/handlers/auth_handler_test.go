@@ -14,7 +14,7 @@ import (
 type fakeUserService struct {
 	registerUser  *models.User
 	registerError error
-	loginUser     *models.User
+	loginUser     *models.LoginResponse
 	loginError    error
 }
 
@@ -34,7 +34,7 @@ func (f *fakeUserService) RegisterUser(
 func (f *fakeUserService) LoginUser(
 	email string,
 	password string,
-) (*models.User, error) {
+) (*models.LoginResponse, error) {
 
 	if f.loginError != nil {
 		return nil, f.loginError
@@ -176,10 +176,13 @@ func TestRegisterHandlerServiceError(t *testing.T) {
 func TestLoginHandler(t *testing.T) {
 
 	fakeService := &fakeUserService{
-		loginUser: &models.User{
-			ID:       1,
-			Username: "testuser",
-			Email:    "test@example.com",
+		loginUser: &models.LoginResponse{
+			Token: "test-token",
+			User: models.User{
+				ID:       1,
+				Username: "testuser",
+				Email:    "test@example.com",
+			},
 		},
 	}
 

@@ -20,10 +20,10 @@ func HashPassword(password string) (string, error) {
 	hash := argon2.IDKey(
 		[]byte(password),
 		salt,
-		1,        // iterations
-		64*1024,  // memory (64 MB)
-		4,        // parallelism
-		32,       // output length
+		1,       // iterations
+		64*1024, // memory (64 MB)
+		4,       // parallelism
+		32,      // output length
 	)
 
 	return fmt.Sprintf(

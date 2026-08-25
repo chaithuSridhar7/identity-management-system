@@ -13,11 +13,13 @@ type UserRepository interface {
 
 type UserService struct {
 	UserRepository UserRepository
+	JWTSecret      string
 }
 
-func NewUserService(repo UserRepository) *UserService {
+func NewUserService(repo UserRepository, jwtSecret string) *UserService {
 	return &UserService{
 		UserRepository: repo,
+		JWTSecret:      jwtSecret,
 	}
 }
 
@@ -51,7 +53,7 @@ func (s *UserService) RegisterUser(
 func (s *UserService) LoginUser(
 	email string,
 	password string,
-) (*models.User, error) {
+) (*models.LoginResponse, error) {
 
 	user, err := s.UserRepository.FindUserByEmail(email)
 
@@ -63,5 +65,18 @@ func (s *UserService) LoginUser(
 		return nil, errors.New("invalid email or password")
 	}
 
-	return user, nil
+	token, err := security.GenerateAccessToken(
+		user.ID,
+		user.Email,
+		s.JWTSecret,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.LoginResponse{
+		Token: token,
+		User:  *user,
+	}, nil
 }
