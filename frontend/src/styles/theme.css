@@ -1,0 +1,29 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--color-primary);
+}
+
+:root {
+  --color-primary: #441151;
+  --color-accent: #cbff8c;
+  --color-secondary: #b592a0;
+
+  --font-primary: "Inter", sans-serif;
+
+  --border-radius-card: 30px;
+  --border-width-card: 10px;
+}
