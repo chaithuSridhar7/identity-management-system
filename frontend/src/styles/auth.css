@@ -158,3 +158,39 @@
   outline-offset: 4px;
 }
 
+.dashboard {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--color-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+.dashboard-card {
+  width: min(600px, 100%);
+  padding: 50px;
+  border: 10px solid #b592a0;
+  border-radius: 30px;
+  text-align: center;
+  color: var(--color-accent);
+  box-sizing: border-box;
+}
+
+.dashboard-card h1 {
+  margin: 0 0 20px;
+  font-size: 36px;
+  font-weight: 800;
+}
+
+.dashboard-card p {
+  font-size: 20px;
+}
+
+.dashboard-status {
+  margin-top: 30px;
+  font-weight: 700;
+}
+
