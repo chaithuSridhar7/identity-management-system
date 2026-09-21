@@ -8,6 +8,7 @@ import (
 
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/database"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/handlers"
+	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/middleware"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/repository"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/services"
 	"github.com/joho/godotenv"
@@ -45,9 +46,22 @@ func main() {
 	http.HandleFunc("/register", authHandler.Register)
 	http.HandleFunc("/login", authHandler.Login)
 
+	meHandler := handlers.NewMeHandler(userRepository)
+
+	protectedMeHandler := middleware.AuthMiddleware(
+		jwtSecret,
+		http.HandlerFunc(meHandler.GetMe),
+	)
+
+	http.Handle("/me", protectedMeHandler)
+
+	router := http.DefaultServeMux
+
+	handler := middleware.CORS(router)
+
 	fmt.Println("Server running on port 8080")
 
-	err = http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", handler)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -9,10 +9,12 @@ import (
 )
 
 type fakeUserRepository struct {
-	createdUser     *models.User
-	userToReturn    *models.User
-	findUserError   error
-	createUserError error
+	createdUser       *models.User
+	userToReturn      *models.User
+	userByID          *models.User
+	findUserError     error
+	findUserByIDError error
+	createUserError   error
 }
 
 func (f *fakeUserRepository) CreateUser(user *models.User) error {
@@ -30,6 +32,14 @@ func (f *fakeUserRepository) FindUserByEmail(email string) (*models.User, error)
 	}
 
 	return f.userToReturn, nil
+}
+
+func (f *fakeUserRepository) FindUserByID(id int) (*models.User, error) {
+	if f.findUserByIDError != nil {
+		return nil, f.findUserByIDError
+	}
+
+	return f.userByID, nil
 }
 
 func TestRegisterUser(t *testing.T) {
