@@ -50,7 +50,7 @@ func main() {
 
 	protectedMeHandler := middleware.AuthMiddleware(
 		jwtSecret,
-		http.HandlerFunc(meHandler.GetMe),
+		meHandler,
 	)
 
 	http.Handle("/me", protectedMeHandler)

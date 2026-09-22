@@ -69,11 +69,13 @@ func (r *UserRepository) FindUserByID(id int) (*models.User, error) {
 
 	user := &models.User{}
 
+	var displayName sql.NullString
+
 	query := `
-		SELECT id, username, email, password_hash, created_at
-		FROM users
-		WHERE id = $1
-	`
+        SELECT id, username, display_name, email, password_hash, created_at
+        FROM users
+        WHERE id = $1
+    `
 
 	err := r.DB.QueryRow(
 		query,
@@ -81,6 +83,7 @@ func (r *UserRepository) FindUserByID(id int) (*models.User, error) {
 	).Scan(
 		&user.ID,
 		&user.Username,
+		&displayName,
 		&user.Email,
 		&user.PasswordHash,
 		&user.CreatedAt,
@@ -90,5 +93,28 @@ func (r *UserRepository) FindUserByID(id int) (*models.User, error) {
 		return nil, err
 	}
 
+	if displayName.Valid {
+		user.DisplayName = displayName.String
+	} else {
+		user.DisplayName = user.Username
+	}
+
 	return user, nil
+}
+
+func (r *UserRepository) UpdateDisplayName(id int, displayName string) error {
+
+	query := `
+        UPDATE users
+        SET display_name = $1
+        WHERE id = $2
+    `
+
+	_, err := r.DB.Exec(
+		query,
+		displayName,
+		id,
+	)
+
+	return err
 }
