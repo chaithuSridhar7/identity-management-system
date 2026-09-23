@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import {
   getCurrentUser,
   updateCurrentUser,
+  uploadProfileImage,
+  getProfileImage,
 } from "../services/authService";
 
 function Dashboard() {
@@ -24,6 +26,11 @@ function Dashboard() {
         setDisplayName(
           currentUser.display_name || currentUser.username
         );
+
+        if (currentUser.profile_image_key) {
+          const imageUrl = await getProfileImage();
+          setProfileImage(imageUrl);
+        }
       } catch (error) {
         console.error("Failed to load user:", error);
         localStorage.removeItem("accessToken");
@@ -41,15 +48,25 @@ function Dashboard() {
     navigate("/login");
   };
 
-  const handleProfileImageChange = (event) => {
+  const handleProfileImageChange = async (event) => {
     const file = event.target.files[0];
 
     if (!file) {
       return;
     }
 
-    const imageURL = URL.createObjectURL(file);
-    setProfileImage(imageURL);
+    try {
+      const updatedUser = await uploadProfileImage(file);
+
+      setUser(updatedUser);
+
+      if (updatedUser.profile_image_key) {
+        const imageUrl = await getProfileImage();
+        setProfileImage(imageUrl);
+      }
+    } catch (error) {
+      console.error("Failed to upload profile image:", error);
+    }
   };
 
   const handleSaveProfile = async () => {

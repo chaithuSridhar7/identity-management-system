@@ -78,3 +78,50 @@ export async function updateCurrentUser(displayName) {
 
   return response.json();
 }
+
+export async function uploadProfileImage(file) {
+  const token = localStorage.getItem("accessToken");
+
+  const formData = new FormData();
+  formData.append("profile_image", file);
+
+  const response = await fetch(
+    "http://localhost:8080/me/profile-image",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || "Unable to upload profile image");
+  }
+
+  return response.json();
+}
+
+export async function getProfileImage() {
+  const token = localStorage.getItem("accessToken");
+
+  const response = await fetch(
+    "http://localhost:8080/me/profile-image",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Unable to get profile image");
+  }
+
+  const blob = await response.blob();
+
+  return URL.createObjectURL(blob);
+}
