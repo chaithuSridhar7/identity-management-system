@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/middleware"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/repository"
 	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/services"
+	"github.com/chaithuSridhar7/identity-management-system/auth-service/internal/storage"
 	"github.com/joho/godotenv"
 )
 
@@ -42,11 +44,23 @@ func main() {
 
 	authHandler := handlers.NewAuthHandler(userService)
 
+	s3Storage, err := storage.NewS3Storage()
+	if err != nil {
+		log.Fatal("S3 storage initialization failed:", err)
+	}
+
+	err = s3Storage.CheckBucket(context.Background())
+	if err != nil {
+		log.Fatal("S3 bucket access failed:", err)
+	}
+
+	fmt.Println("S3 bucket connected successfully")
+
 	http.HandleFunc("/", handlers.HomeHandler)
 	http.HandleFunc("/register", authHandler.Register)
 	http.HandleFunc("/login", authHandler.Login)
 
-	meHandler := handlers.NewMeHandler(userRepository)
+	meHandler := handlers.NewMeHandler(userRepository, s3Storage)
 
 	protectedMeHandler := middleware.AuthMiddleware(
 		jwtSecret,
@@ -54,6 +68,7 @@ func main() {
 	)
 
 	http.Handle("/me", protectedMeHandler)
+	http.Handle("/me/profile-image", protectedMeHandler)
 
 	router := http.DefaultServeMux
 

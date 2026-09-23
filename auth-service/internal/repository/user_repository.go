@@ -70,12 +70,13 @@ func (r *UserRepository) FindUserByID(id int) (*models.User, error) {
 	user := &models.User{}
 
 	var displayName sql.NullString
+	var profileImageKey sql.NullString
 
 	query := `
-        SELECT id, username, display_name, email, password_hash, created_at
-        FROM users
-        WHERE id = $1
-    `
+		SELECT id, username, display_name, email, password_hash, profile_image_key, created_at
+		FROM users
+		WHERE id = $1
+	`
 
 	err := r.DB.QueryRow(
 		query,
@@ -86,6 +87,7 @@ func (r *UserRepository) FindUserByID(id int) (*models.User, error) {
 		&displayName,
 		&user.Email,
 		&user.PasswordHash,
+		&profileImageKey,
 		&user.CreatedAt,
 	)
 
@@ -97,6 +99,10 @@ func (r *UserRepository) FindUserByID(id int) (*models.User, error) {
 		user.DisplayName = displayName.String
 	} else {
 		user.DisplayName = user.Username
+	}
+
+	if profileImageKey.Valid {
+		user.ProfileImageKey = profileImageKey.String
 	}
 
 	return user, nil
@@ -113,6 +119,22 @@ func (r *UserRepository) UpdateDisplayName(id int, displayName string) error {
 	_, err := r.DB.Exec(
 		query,
 		displayName,
+		id,
+	)
+
+	return err
+}
+
+func (r *UserRepository) UpdateProfileImageKey(id int, key string) error {
+	query := `
+		UPDATE users
+		SET profile_image_key = $1
+		WHERE id = $2
+	`
+
+	_, err := r.DB.Exec(
+		query,
+		key,
 		id,
 	)
 
